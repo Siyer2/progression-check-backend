@@ -6,6 +6,7 @@ const express = require('express');
 require('dotenv').config();
 const app = express();
 const AWS = require('aws-sdk');
+const Fuse = require('fuse.js');
 const bodyParser = require('body-parser');
 
 const programs = require('./data/programs.json');
@@ -60,10 +61,16 @@ app.get('/', (request, response) => {
 app.post('/autocompletePrograms', (request, response) => {
 	try {
 		const query = request.body.query;
+		
+		const fuse = new Fuse(programs, {
+			keys: ['Item.code.S', 'Item.title.S']
+		});
 
-		console.log(query);
+		// 3. Now search!
+		const results = fuse.search(query, { limit: 2 });
+		console.log(results);
 
-		return response.send(query);
+		return response.send(results);
 	} catch (error) {
 		return response.status(400).json({ error });
 	}
