@@ -10,6 +10,7 @@ const Fuse = require('fuse.js');
 const bodyParser = require('body-parser');
 
 const programs = require('./data/programs.json');
+const courses = require('./data/courses.json');
 
 // Middleware
 app.use(bodyParser.json({ strict: false }));
@@ -64,6 +65,23 @@ app.post('/autocompletePrograms', (request, response) => {
 		
 		const fuse = new Fuse(programs, {
 			keys: ['Item.code.S', 'Item.title.S']
+		});
+
+		const results = fuse.search(query, { limit: 5 });
+		console.log(results);
+
+		return response.send(results);
+	} catch (error) {
+		return response.status(400).json({ error });
+	}
+});
+
+app.post('/autocompleteCourses', (request, response) => {
+	try {
+		const query = request.body.query;
+
+		const fuse = new Fuse(courses, {
+			keys: ['Item.course_code.S', 'Item.name.S']
 		});
 
 		const results = fuse.search(query, { limit: 5 });
