@@ -66,8 +66,7 @@ app.post('/autocompletePrograms', (request, response) => {
 			keys: ['Item.code.S', 'Item.title.S']
 		});
 
-		// 3. Now search!
-		const results = fuse.search(query, { limit: 2 });
+		const results = fuse.search(query, { limit: 5 });
 		console.log(results);
 
 		return response.send(results);
