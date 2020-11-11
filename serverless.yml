@@ -1,0 +1,8 @@
+org: si2222
+app: backend
+component: express
+name: express-starter
+
+inputs:
+  src: ./
+  region: ap-southeast-2
