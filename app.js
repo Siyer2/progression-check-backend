@@ -8,9 +8,18 @@ const app = express();
 const AWS = require('aws-sdk');
 const Fuse = require('fuse.js');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+const _ = require('lodash');
 
 const programs = require('./data/programs.json');
 const courses = require('./data/courses.json');
+
+// Configure CORS
+var corsOptions = {
+	origin: ['http://localhost:1234'],
+	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(bodyParser.json({ strict: false }));
@@ -38,6 +47,7 @@ app.use(function (req, res, next) {
   next();
 });
 
+
 // Routes
 app.get('/', (request, response) => {
   try {
@@ -59,6 +69,16 @@ app.get('/', (request, response) => {
   }
 });
 
+app.post('/getProgram', (request, response) => {
+	const code = request.body.code;
+	const implementation_year = request.body.implementation_year;
+
+	const programToReturn = _.find(programs, function(program) {
+		return program.Item.code.S === code && program.Item.implementation_year.S === implementation_year;
+	});
+
+	return response.send(programToReturn);
+});
 app.post('/autocompletePrograms', (request, response) => {
 	try {
 		const query = request.body.query;
@@ -67,8 +87,7 @@ app.post('/autocompletePrograms', (request, response) => {
 			keys: ['Item.code.S', 'Item.title.S']
 		});
 
-		const results = fuse.search(query, { limit: 5 });
-		console.log(results);
+		const results = fuse.search(query, { limit: 10 });
 
 		return response.send(results);
 	} catch (error) {
@@ -84,8 +103,7 @@ app.post('/autocompleteCourses', (request, response) => {
 			keys: ['Item.course_code.S', 'Item.name.S']
 		});
 
-		const results = fuse.search(query, { limit: 5 });
-		console.log(results);
+		const results = fuse.search(query, { limit: 10 });
 
 		return response.send(results);
 	} catch (error) {
