@@ -111,6 +111,29 @@ app.post('/autocompleteCourses', (request, response) => {
 	}
 });
 
+app.post('/getRequirements', (request, response) => {
+	try {
+		const code = request.body.code;
+		const implementation_year = request.body.implementation_year;
+
+		// Get program
+		const program = _.find(programs, function (program) {
+			return program.Item.code.S === code && program.Item.implementation_year.S === implementation_year;
+		});
+
+		// Get all the specialisation codes
+		const specialisations = request.body.specialisations;
+		const codes = Object.values(specialisations);
+		
+		// Get all of the specialisation objects and return with the program
+
+		return response.send("done");
+
+	} catch (error) {
+		return repsonse.status(400).json({ error });
+	}
+});
+
 // Error handler
 app.use((err, req, res) => {
   console.error(err);
