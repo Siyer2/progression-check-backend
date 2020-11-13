@@ -140,7 +140,19 @@ app.post('/getRequirements', (request, response) => {
 		const specialisations = request.body.specialisations;
 		const codes = Object.values(specialisations);
 
-		var test = {};
+		var returnObject = {
+			code: program.code.S, 
+			title: program.title.S, 
+			minimumUOC: program.minimumUOC.S, 
+			...program.coreCourses && { coreCourses: program.coreCourses.L }, 
+			...program.prescribedElectives && { prescribedElectives: program.prescribedElectives.L }, 
+			...program.generalEducation && { generalEducation: program.generalEducation.L }, 
+			...program.informationRules && { informationRules: program.informationRules.L }, 
+			...program.limitRules && { limitRules: program.limitRules.L }, 
+			...program.maturityRules && { maturityRules: program.maturityRules.L }, 
+			...program.oneOfTheFollowings && { oneOfTheFollowings: program.oneOfTheFollowings.L }, 
+			...program.freeElectives && { freeElectives: program.freeElectives.L }
+		}
 		
 		// Get all of the specialisation objects and return with the program
 		codes.map((specCode) => {
@@ -149,29 +161,17 @@ app.post('/getRequirements', (request, response) => {
 			// Go through each attribute that's not the code, title or year
 			Object.keys(spec).map((rule) => {
 				if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
-					// Add to the program document
-					// if (program[rule]) {
-					// 	console.log("program", program[rule].L);
-					// 	console.log("want to add", spec[rule].L);
-
-					// 	const proposed = (program[rule].L).concat(spec[rule].L);
-					// 	console.log("proposed", proposed);
-					// }
-
-
-					if (!program[rule]) {
-						console.log("rule1", rule);
-						test[rule] = spec[rule];
+					if (!returnObject[rule]) {
+						returnObject[rule].L = spec[rule];
 					}
 					else {
-						console.log("rule2", rule);
-						test[rule] = (program[rule].L).concat(spec[rule].L);
+						returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
 					}
 				}
 			});
 		});
 
-		return response.send(test);
+		return response.send(returnObject);
 
 	} catch (error) {
 		return response.status(400).json({ error });
