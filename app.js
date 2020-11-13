@@ -13,6 +13,7 @@ const _ = require('lodash');
 
 const programs = require('./data/programs.json');
 const courses = require('./data/courses.json');
+const specialisations = require('./data/specialisations.json');
 
 // Configure CORS
 var corsOptions = {
@@ -111,26 +112,69 @@ app.post('/autocompleteCourses', (request, response) => {
 	}
 });
 
+function getSpecialisation(specialisation_code, implementation_year) {
+	const specialisation = _.find(specialisations, function(spec) {
+		return spec.Item.specialisation_code.S === specialisation_code && spec.Item.implementation_year.S === implementation_year;
+	});
+
+	return specialisation && specialisation.Item;
+}
+
+function getProgram(code, implementation_year) {
+	const program = _.find(programs, function(spec) {
+		return spec.Item.code.S === code && spec.Item.implementation_year.S === implementation_year;
+	});
+
+	return program && program.Item;
+}
+
 app.post('/getRequirements', (request, response) => {
 	try {
 		const code = request.body.code;
 		const implementation_year = request.body.implementation_year;
 
 		// Get program
-		const program = _.find(programs, function (program) {
-			return program.Item.code.S === code && program.Item.implementation_year.S === implementation_year;
-		});
+		var program = getProgram(code, implementation_year);
 
 		// Get all the specialisation codes
 		const specialisations = request.body.specialisations;
 		const codes = Object.values(specialisations);
+
+		var test = {};
 		
 		// Get all of the specialisation objects and return with the program
+		codes.map((specCode) => {
+			const spec = getSpecialisation(specCode, implementation_year);
 
-		return response.send("done");
+			// Go through each attribute that's not the code, title or year
+			Object.keys(spec).map((rule) => {
+				if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
+					// Add to the program document
+					// if (program[rule]) {
+					// 	console.log("program", program[rule].L);
+					// 	console.log("want to add", spec[rule].L);
+
+					// 	const proposed = (program[rule].L).concat(spec[rule].L);
+					// 	console.log("proposed", proposed);
+					// }
+
+
+					if (!program[rule]) {
+						console.log("rule1", rule);
+						test[rule] = spec[rule];
+					}
+					else {
+						console.log("rule2", rule);
+						test[rule] = (program[rule].L).concat(spec[rule].L);
+					}
+				}
+			});
+		});
+
+		return response.send(test);
 
 	} catch (error) {
-		return repsonse.status(400).json({ error });
+		return response.status(400).json({ error });
 	}
 });
 
