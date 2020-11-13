@@ -74,9 +74,7 @@ app.post('/getProgram', (request, response) => {
 	const code = request.body.code;
 	const implementation_year = request.body.implementation_year;
 
-	const programToReturn = _.find(programs, function(program) {
-		return program.Item.code.S === code && program.Item.implementation_year.S === implementation_year;
-	});
+	const programToReturn = getProgram(code, implementation_year);
 
 	return response.send(programToReturn);
 });
