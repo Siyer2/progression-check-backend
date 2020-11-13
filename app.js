@@ -115,7 +115,7 @@ function getSpecialisation(specialisation_code, implementation_year) {
 		return spec.Item.specialisation_code.S === specialisation_code && spec.Item.implementation_year.S === implementation_year;
 	});
 
-	return specialisation && specialisation.Item;
+	return specialisation;
 }
 
 function getProgram(code, implementation_year) {
@@ -123,7 +123,7 @@ function getProgram(code, implementation_year) {
 		return spec.Item.code.S === code && spec.Item.implementation_year.S === implementation_year;
 	});
 
-	return program && program.Item;
+	return program;
 }
 
 app.post('/getRequirements', (request, response) => {
@@ -132,7 +132,7 @@ app.post('/getRequirements', (request, response) => {
 		const implementation_year = request.body.implementation_year;
 
 		// Get program
-		var program = getProgram(code, implementation_year);
+		var program = getProgram(code, implementation_year).Item;
 
 		// Get all the specialisation codes
 		const specialisations = request.body.specialisations;
@@ -154,19 +154,23 @@ app.post('/getRequirements', (request, response) => {
 		
 		// Get all of the specialisation objects and return with the program
 		codes.map((specCode) => {
-			const spec = getSpecialisation(specCode, implementation_year);
-
-			// Go through each attribute that's not the code, title or year
-			Object.keys(spec).map((rule) => {
-				if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
-					if (!returnObject[rule]) {
-						returnObject[rule].L = spec[rule];
-					}
-					else {
-						returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
-					}
+			if (specCode) {
+				const specExists = getSpecialisation(specCode, implementation_year);
+				if (specExists) {
+					const spec = specExists.Item;
+					// Go through each attribute that's not the code, title or year
+					Object.keys(spec).map((rule) => {
+						if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
+							if (!returnObject[rule]) {
+								returnObject[rule] = spec[rule];
+							}
+							else {
+								returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
+							}
+						}
+					});
 				}
-			});
+			}
 		});
 
 		return response.send(returnObject);
