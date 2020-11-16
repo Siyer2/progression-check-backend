@@ -78,6 +78,7 @@ app.post('/getProgram', (request, response) => {
 
 	return response.send(programToReturn);
 });
+
 app.post('/autocompletePrograms', (request, response) => {
 	try {
 		const query = request.body.query;
@@ -86,7 +87,7 @@ app.post('/autocompletePrograms', (request, response) => {
 			keys: ['Item.code.S', 'Item.title.S']
 		});
 
-		const results = fuse.search(query, { limit: 10 });
+		const results = fuse.search(query, { limit: 20 });
 
 		return response.send(results);
 	} catch (error) {
@@ -142,6 +143,7 @@ app.post('/getRequirements', (request, response) => {
 			code: program.code.S, 
 			title: program.title.S, 
 			minimumUOC: program.minimumUOC.S, 
+			implementation_year: program.implementation_year.S, 
 			...program.coreCourses && { coreCourses: program.coreCourses.L }, 
 			...program.prescribedElectives && { prescribedElectives: program.prescribedElectives.L }, 
 			...program.generalEducation && { generalEducation: program.generalEducation.L }, 
@@ -151,12 +153,20 @@ app.post('/getRequirements', (request, response) => {
 			...program.oneOfTheFollowings && { oneOfTheFollowings: program.oneOfTheFollowings.L }, 
 			...program.freeElectives && { freeElectives: program.freeElectives.L }
 		}
-		
+				
 		// Get all of the specialisation objects and return with the program
 		codes.map((specCode) => {
 			if (specCode) {
 				const specExists = getSpecialisation(specCode, implementation_year);
 				if (specExists) {
+					// Add spec name to the returnObject
+					if (!returnObject['specialisations']) {
+						returnObject['specialisations'] = [specCode];
+					}
+					else {
+						returnObject['specialisations'] = (returnObject['specialisations']).concat(specCode);
+					}
+
 					const spec = specExists.Item;
 					// Go through each attribute that's not the code, title or year
 					Object.keys(spec).map((rule) => {
