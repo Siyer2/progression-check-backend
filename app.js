@@ -103,9 +103,10 @@ app.post('/autocompleteCourses', (request, response) => {
 			keys: ['Item.course_code.S', 'Item.name.S']
 		});
 
-		const results = fuse.search(query, { limit: 10 });
+		const results = fuse.search(query, { limit: 20 });
+		const uniqueResults = _.uniqBy(results, 'item.Item.course_code.S');
 
-		return response.send(results);
+		return response.send(uniqueResults);
 	} catch (error) {
 		return response.status(400).json({ error });
 	}
