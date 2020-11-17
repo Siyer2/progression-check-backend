@@ -95,6 +95,14 @@ app.post('/autocompletePrograms', (request, response) => {
 	}
 });
 
+app.post('/getCourse', (request, response) => {
+	const course_code = request.body.course_code;
+
+	const courseToReturn = getCourse(course_code);
+
+	return response.send(courseToReturn);
+});
+
 app.post('/autocompleteCourses', (request, response) => {
 	try {
 		const query = request.body.query;
@@ -126,6 +134,14 @@ function getProgram(code, implementation_year) {
 	});
 
 	return program;
+}
+
+function getCourse(course_code) {
+	const course = _.find(courses, function(spec) {
+		return spec.Item.course_code.S === course_code;
+	});
+
+	return course;
 }
 
 app.post('/getRequirements', (request, response) => {
