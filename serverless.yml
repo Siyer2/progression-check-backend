@@ -6,3 +6,5 @@ name: express-starter
 inputs:
   src: ./
   region: ap-southeast-2
+  env:
+    DEPLOYMENT: production
