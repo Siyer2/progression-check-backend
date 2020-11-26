@@ -17,7 +17,7 @@ const specialisations = require('./data/specialisations.json');
 
 // Configure CORS
 var corsOptions = {
-	origin: process.env.DEPLOYMENT === 'production' ? ['https://dvux7ocropqhi.cloudfront.net'] : ['http://localhost:1234'],
+	origin: process.env.DEPLOYMENT === 'production' ? ['https://proglak.com', 'https://www.proglak.com', 'https://dvux7ocropqhi.cloudfront.net'] : ['http://localhost:1234'],
 	// origin: ['https://dvux7ocropqhi.cloudfront.net'],
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
