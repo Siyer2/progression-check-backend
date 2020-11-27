@@ -88,7 +88,7 @@ app.post('/autocompletePrograms', (request, response) => {
 			keys: ['Item.code.S', 'Item.title.S']
 		});
 
-		const results = fuse.search(query, { limit: 20 });
+		const results = fuse.search(query, { limit: 40 });
 
 		return response.send(results);
 	} catch (error) {
@@ -190,7 +190,8 @@ app.post('/getRequirements', (request, response) => {
 					Object.keys(spec).map((rule) => {
 						if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
 							if (!returnObject[rule]) {
-								returnObject[rule] = spec[rule];
+								const ruleToAdd = Array.isArray(spec[rule]) ? spec[rule] : spec[rule].L;
+								returnObject[rule] = ruleToAdd;
 							}
 							else {
 								returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
