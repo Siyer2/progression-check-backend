@@ -25,6 +25,31 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(bodyParser.json({ strict: false }));
 
+// Helper functions
+function getSpecialisation(specialisation_code, implementation_year) {
+	const specialisation = _.find(specialisations, function (spec) {
+		return spec.Item.specialisation_code.S === specialisation_code && spec.Item.implementation_year.S === implementation_year;
+	});
+
+	return specialisation;
+}
+
+function getProgram(code, implementation_year) {
+	const program = _.find(programs, function (spec) {
+		return spec.Item.code.S === code && spec.Item.implementation_year.S === implementation_year;
+	});
+
+	return program;
+}
+
+function getCourse(course_code) {
+	const course = _.find(courses, function (spec) {
+		return spec.Item.course_code.S === course_code;
+	});
+
+	return course;
+}
+
 // Routes
 app.get('/', (request, response) => {
   try {
@@ -83,30 +108,6 @@ app.post('/autocompleteCourses', (request, response) => {
 		return response.status(400).json({ error });
 	}
 });
-
-function getSpecialisation(specialisation_code, implementation_year) {
-	const specialisation = _.find(specialisations, function(spec) {
-		return spec.Item.specialisation_code.S === specialisation_code && spec.Item.implementation_year.S === implementation_year;
-	});
-
-	return specialisation;
-}
-
-function getProgram(code, implementation_year) {
-	const program = _.find(programs, function(spec) {
-		return spec.Item.code.S === code && spec.Item.implementation_year.S === implementation_year;
-	});
-
-	return program;
-}
-
-function getCourse(course_code) {
-	const course = _.find(courses, function(spec) {
-		return spec.Item.course_code.S === course_code;
-	});
-
-	return course;
-}
 
 app.post('/getRequirements', (request, response) => {
 	try {
