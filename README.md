@@ -1,5 +1,5 @@
 # Backend for proglak.com
 
-# To run:
+# To run locally:
 - npm install
-- node index.js
+- node app.local.js
