@@ -10,9 +10,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const _ = require('lodash');
 
-const programs = require('./data/programs.json');
-const courses = require('./data/courses.json');
-const specialisations = require('./data/specialisations.json');
+const programs = require('./data_v2/programs.json');
+const courses = require('./data_v2/courses.json');
+const specialisations = require('./data_v2/specialisations.json');
 
 // Configure CORS
 var corsOptions = {
@@ -28,7 +28,7 @@ app.use(bodyParser.json({ strict: false }));
 // Helper functions
 function getSpecialisation(specialisation_code, implementation_year) {
 	const specialisation = _.find(specialisations, function (spec) {
-		return spec.Item.specialisation_code.S === specialisation_code && spec.Item.implementation_year.S === implementation_year;
+		return spec.Item.specialisation_code === specialisation_code && spec.Item.implementation_year === implementation_year;
 	});
 
 	return specialisation;
@@ -36,7 +36,7 @@ function getSpecialisation(specialisation_code, implementation_year) {
 
 function getProgram(code, implementation_year) {
 	const program = _.find(programs, function (spec) {
-		return spec.Item.code.S === code && spec.Item.implementation_year.S === implementation_year;
+		return spec.Item.code === code && spec.Item.implementation_year === implementation_year;
 	});
 
 	return program;
@@ -44,7 +44,7 @@ function getProgram(code, implementation_year) {
 
 function getCourse(course_code) {
 	const course = _.find(courses, function (spec) {
-		return spec.Item.course_code.S === course_code;
+		return spec.Item.course_code === course_code;
 	});
 
 	return course;
@@ -73,7 +73,7 @@ app.post('/autocompletePrograms', (request, response) => {
 		const query = request.body.query;
 		
 		const fuse = new Fuse(programs, {
-			keys: ['Item.code.S', 'Item.title.S']
+			keys: ['Item.code', 'Item.title']
 		});
 
 		const results = fuse.search(query, { limit: 40 });
@@ -97,11 +97,11 @@ app.post('/autocompleteCourses', (request, response) => {
 		const query = request.body.query;
 
 		const fuse = new Fuse(courses, {
-			keys: ['Item.course_code.S', 'Item.name.S']
+			keys: ['Item.course_code', 'Item.name']
 		});
 
 		const results = fuse.search(query, { limit: 20 });
-		const uniqueResults = _.uniqBy(results, 'item.Item.course_code.S');
+		const uniqueResults = _.uniqBy(results, 'item.Item.course_code');
 
 		return response.send(uniqueResults);
 	} catch (error) {
@@ -122,18 +122,18 @@ app.post('/getRequirements', (request, response) => {
 		const codes = _.flatten(Object.values(specialisations));
 
 		var returnObject = {
-			code: program.code.S, 
-			title: program.title.S, 
-			minimumUOC: program.minimumUOC.S, 
-			implementation_year: program.implementation_year.S, 
-			...program.coreCourses && { coreCourses: program.coreCourses.L }, 
-			...program.prescribedElectives && { prescribedElectives: program.prescribedElectives.L }, 
-			...program.generalEducation && { generalEducation: program.generalEducation.L }, 
-			...program.informationRules && { informationRules: program.informationRules.L }, 
-			...program.limitRules && { limitRules: program.limitRules.L }, 
-			...program.maturityRules && { maturityRules: program.maturityRules.L }, 
-			...program.oneOfTheFollowings && { oneOfTheFollowings: program.oneOfTheFollowings.L }, 
-			...program.freeElectives && { freeElectives: program.freeElectives.L }
+			code: program.code, 
+			title: program.title, 
+			minimumUOC: program.minimumUOC, 
+			implementation_year: program.implementation_year, 
+			...program.coreCourses && { coreCourses: program.coreCourses }, 
+			...program.prescribedElectives && { prescribedElectives: program.prescribedElectives }, 
+			...program.generalEducation && { generalEducation: program.generalEducation }, 
+			...program.informationRules && { informationRules: program.informationRules }, 
+			...program.limitRules && { limitRules: program.limitRules }, 
+			...program.maturityRules && { maturityRules: program.maturityRules }, 
+			...program.oneOfTheFollowings && { oneOfTheFollowings: program.oneOfTheFollowings }, 
+			...program.freeElectives && { freeElectives: program.freeElectives }
 		}
 				
 		// Get all of the specialisation objects and return with the program
@@ -154,11 +154,10 @@ app.post('/getRequirements', (request, response) => {
 					Object.keys(spec).map((rule) => {
 						if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
 							if (!returnObject[rule]) {
-								const ruleToAdd = Array.isArray(spec[rule]) ? spec[rule] : spec[rule].L;
-								returnObject[rule] = ruleToAdd;
+								returnObject[rule] = spec[rule];
 							}
 							else {
-								returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
+								returnObject[rule] = (returnObject[rule]).concat(spec[rule]);
 							}
 						}
 					});
