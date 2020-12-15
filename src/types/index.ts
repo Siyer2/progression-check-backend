@@ -10,9 +10,9 @@ interface Program {
     code: string;
     implementation_year: string;
     minimumUOC: string;
+    title: any;
     coreCourses?: any;
     generalEducation?: any;
-    title?: any;
     faculty?: any;
     maturityRules?: any;
     prescribedElectives?: any;
@@ -28,7 +28,15 @@ interface Program {
 }
 
 interface Specialisation {
-
+    specialisation_code: string;
+    implementation_year: string;
+    title: any;
+    prescribedElectives?: any;
+    coreCourses?: any;
+    generalEducation?: any;
+    oneOfTheFollowings?: any;
+    maturityRules?: any;
+    [other: string]: any;
 }
 
 export {

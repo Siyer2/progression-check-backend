@@ -5,10 +5,14 @@ const router = express.Router();
 
 const programs = require('../../data_v2/programs.json');
 const specialisations = require('../../data_v2/specialisations.json');
-import { Program } from '../types';
+import { Program, Specialisation } from '../types';
 
 interface ReturnedProgram {
     Item: Program
+}
+
+interface ReturnedSpecialisation {
+    Item: Specialisation
 }
 
 interface ReturnRequirements extends Program {
@@ -23,8 +27,8 @@ function getProgram(code: string, implementation_year: string): ReturnedProgram 
     return program;
 }
 
-function getSpecialisation(specialisation_code: string, implementation_year: string) {
-    const specialisation = _.find(specialisations, function (spec) {
+function getSpecialisation(specialisation_code: string, implementation_year: string): ReturnedSpecialisation {
+    const specialisation: ReturnedSpecialisation = _.find(specialisations, function (spec) {
         return spec.Item.specialisation_code === specialisation_code && spec.Item.implementation_year === implementation_year;
     });
 
@@ -86,7 +90,7 @@ router.post('/requirements', function (request: express.Request, response: expre
         // Get all of the specialisation objects and return with the program
         codes.map((specCode) => {
             if (specCode) {
-                const specExists = getSpecialisation(specCode, implementation_year);
+                const specExists: ReturnedSpecialisation = getSpecialisation(specCode, implementation_year);
                 if (specExists) {
                     // Add spec name to the returnObject
                     if (!returnObject['specialisations']) {
