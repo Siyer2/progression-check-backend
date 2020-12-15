@@ -23,8 +23,8 @@ let CourseController = require('./controllers/CourseController');
 // Routes
 app.use('/program', ProgramController);
 app.use('/course', CourseController);
-app.get('/', (req, res) => {
-    res.send(`Request received: ${req.method} - ${req.path} with TS`);
+app.get('/', (request: express.Request, response: express.Response) => {
+    response.send(`Request received: ${request.method} - ${request.path} with TS`);
 });
 
 // Error handler
