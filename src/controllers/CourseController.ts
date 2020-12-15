@@ -7,7 +7,7 @@ const courses = require('../../data_v2/courses.json');
 import { Course } from '../types';
 
 interface ReturnedCourse {
-    title: Course
+    Item: Course
 }
 
 function getCourse(course_code: string): ReturnedCourse {

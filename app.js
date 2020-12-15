@@ -120,6 +120,7 @@ app.post('/getRequirements', (request, response) => {
 		// Get all the specialisation codes
 		const specialisations = request.body.specialisations;
 		const codes = _.flatten(Object.values(specialisations));
+		console.log(codes);
 
 		var returnObject = {
 			code: program.code, 
