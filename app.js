@@ -123,7 +123,7 @@ app.post('/program/requirements', (request, response) => {
 
         // Get all the specialisation codes
         const specialisations = request.body.specialisations;
-        const codes = Object.values(specialisations);
+        let codes = _.flatten(Object.values(specialisations));
 
         var returnObject = {
             code: program.code,
@@ -158,11 +158,10 @@ app.post('/program/requirements', (request, response) => {
                     Object.keys(spec).map((rule) => {
                         if (!['specialisation_code', 'title', 'implementation_year'].includes(rule)) {
                             if (!returnObject[rule]) {
-                                const ruleToAdd = Array.isArray(spec[rule]) ? spec[rule] : spec[rule].L;
-                                returnObject[rule] = ruleToAdd;
+                                returnObject[rule] = spec[rule];
                             }
                             else {
-                                returnObject[rule] = (returnObject[rule]).concat(spec[rule].L);
+                                returnObject[rule] = (returnObject[rule]).concat(spec[rule]);
                             }
                         }
                     });
