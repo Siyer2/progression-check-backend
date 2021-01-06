@@ -25,6 +25,12 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(bodyParser.json({ strict: false }));
 
+// Controllers
+let RatingsController = require('./controllers/RatingsController');
+
+// Routes
+app.use('/ratings', RatingsController);
+
 // Helper functions
 function getSpecialisation(specialisation_code, implementation_year) {
     const specialisation = _.find(specialisations, function (spec) {
