@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 /**
  * A gif reaction is added
+ * Inputs: course_code and gifId
  */
 router.post('/add', async function (request, response) {
     try {
@@ -64,6 +65,7 @@ router.post('/add', async function (request, response) {
 
 /**
  * Return the 3 most common reactions
+ * Inputs: course_code
  */
 router.post('/get', async function (request, response) {
     try {
