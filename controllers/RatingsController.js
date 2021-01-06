@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const _ = require('lodash');
 
 /**
  * A gif reaction is added
@@ -61,21 +62,40 @@ router.post('/add', async function (request, response) {
     }
 });
 
-router.get('/get', function (request, response) {
+/**
+ * Return the 3 most common reactions
+ */
+router.post('/get', async function (request, response) {
     try {
-        var params = {
+        const course_code = request.body.course_code;
+        const ratings = await request.db.get({
             TableName: 'ratings',
             Key: {
-                course_code: 'ECON1203'
+                course_code: course_code
             }
-        };
-        request.db.get(params, function (err, data) {
-            if (err) console.log(err); // an error occurred
-            else console.log(data); // successful response
-        });
-        return response.send("success");
+        }).promise();
+
+        if (ratings.Item) {
+            var formattedRatings = {};
+            const reactions = ratings.Item.reactions;
+            reactions.forEach((reaction) => {
+                if (formattedRatings[reaction]) {
+                    formattedRatings[reaction] = formattedRatings[reaction] + 1;
+                }
+                else {
+                    formattedRatings[reaction] = 1;
+                }
+            });
+
+            let sortedReactions = Object.entries(formattedRatings).sort((a, b) => b[1] - a[1]);
+
+            return response.send(sortedReactions);
+        }
+        else {
+            return response.send([]);
+        }
     } catch (error) {
-        return response.status(400).send({ error });
+        return response.status(400).json({ error });
     }
 });
 
