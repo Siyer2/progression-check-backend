@@ -9,6 +9,7 @@ const Fuse = require('fuse.js');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const _ = require('lodash');
+const AWS = require('aws-sdk');
 
 const programs = require('./data_v2/programs.json');
 const courses = require('./data_v2/courses.json');
@@ -24,6 +25,29 @@ app.use(cors(corsOptions));
 
 // Middleware
 app.use(bodyParser.json({ strict: false }));
+app.use(function (req, res, next) {
+    // Load database
+    AWS.config.loadFromPath('./awsKeys.json');
+
+    var docClient;
+    if (process.env.DEPLOYMENT === 'production') {
+        AWS.config.update({
+            region: "ap-southeast-2",
+            endpoint: "https://dynamodb.ap-southeast-2.amazonaws.com",
+        });
+    }
+    else {
+        AWS.config.update({
+            region: "ap-southeast-2",
+            endpoint: "http://localhost:8000"
+        });
+    }
+
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    req.db = docClient;
+
+    next();
+});
 
 // Controllers
 let RatingsController = require('./controllers/RatingsController');
