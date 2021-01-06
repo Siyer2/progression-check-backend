@@ -89,6 +89,7 @@ router.post('/get', async function (request, response) {
             });
 
             let sortedReactions = Object.entries(formattedRatings).sort((a, b) => b[1] - a[1]);
+            sortedReactions = sortedReactions.slice(0, 3);
 
             return response.send(sortedReactions);
         }
