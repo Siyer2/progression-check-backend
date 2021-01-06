@@ -28,7 +28,17 @@ router.post('/add', async function (request, response) {
         
         // If existing course, append the new gif to it's reaction array
         if (existingCourse.Item) {
-            console.log(existingCourse);
+            await request.db.update({
+                TableName: 'ratings', 
+                Key: {
+                    course_code: course_code
+                }, 
+                UpdateExpression: 'SET reactions = list_append(reactions, :value)',
+                ExpressionAttributeValues: {
+                    ':value': [gifId]
+                },
+                ReturnValues: 'ALL_NEW'
+            }).promise();
         }
         // If no existing course, create a new one
         else {
@@ -36,9 +46,9 @@ router.post('/add', async function (request, response) {
                 TableName: 'ratings', 
                 Item: {
                     course_code: course_code,
-                    course_name: course.Item.name, 
-                    link: course.Item.link, 
-                    credit_points: course.Item.credit_points, 
+                    ...course.Item && { course_name: course.Item.name}, 
+                    ...course.Item && { link: course.Item.link}, 
+                    ...course.Item && { credit_points: course.Item.credit_points},
                     reactions: [gifId]
                 }
             }).promise();
